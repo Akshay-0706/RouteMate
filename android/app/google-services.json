@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "233518520936",
+    "project_id": "vehicle-routing-bdff9",
+    "storage_bucket": "vehicle-routing-bdff9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:233518520936:android:6050979925f18ace4739dd",
+        "android_client_info": {
+          "package_name": "com.example.routing"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "233518520936-85a66fcj48a51fb5nr4tgkkiq14c3hts.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrPz8nyXMn4-alLUaZmpK0bw3FBtRjU6k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "233518520936-85a66fcj48a51fb5nr4tgkkiq14c3hts.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
