@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'const.dart';
+
 class ThemeChanger with ChangeNotifier {
   bool isDarkMode = true;
   String theme = "Auto";
@@ -25,16 +27,16 @@ class NewTheme {
       brightness: Brightness.light,
       appBarTheme: AppBarTheme(
         elevation: 0,
-        backgroundColor: Global.background,
-        iconTheme: IconThemeData(color: Global.foreground),
+        backgroundColor: ThemeColors.background,
+        iconTheme: IconThemeData(color: ThemeColors.foreground),
       ),
-      scaffoldBackgroundColor: Global.background,
-      backgroundColor: Global.background,
+      scaffoldBackgroundColor: ThemeColors.background,
+      backgroundColor: ThemeColors.background,
       colorScheme:
-          const ColorScheme.light().copyWith(secondary: Global.primary),
-      primaryColor: Global.primary,
-      primaryColorLight: Global.foregroundAlt,
-      primaryColorDark: Global.foreground,
+          const ColorScheme.light().copyWith(secondary: ThemeColors.primary),
+      primaryColor: ThemeColors.primary,
+      primaryColorLight: ThemeColors.foregroundAlt,
+      primaryColorDark: ThemeColors.foreground,
     );
   }
 
@@ -44,41 +46,19 @@ class NewTheme {
       brightness: Brightness.dark,
       appBarTheme: AppBarTheme(
         elevation: 0,
-        backgroundColor: Global.backgroundDark,
-        iconTheme: IconThemeData(color: Global.foregroundDark),
+        backgroundColor: ThemeColors.backgroundDark,
+        iconTheme: IconThemeData(color: ThemeColors.foregroundDark),
       ),
-      scaffoldBackgroundColor: Global.backgroundDark,
-      backgroundColor: Global.backgroundDark,
+      scaffoldBackgroundColor: ThemeColors.backgroundDark,
+      backgroundColor: ThemeColors.backgroundDark,
       colorScheme:
-          const ColorScheme.dark().copyWith(secondary: Global.primaryDark),
-      primaryColor: Global.primaryDark,
-      primaryColorLight: Global.foregroundAltDark,
-      primaryColorDark: Global.foregroundDark,
+          const ColorScheme.dark().copyWith(secondary: ThemeColors.primaryDark),
+      primaryColor: ThemeColors.primaryDark,
+      primaryColorLight: ThemeColors.foregroundAltDark,
+      primaryColorDark: ThemeColors.foregroundDark,
     );
   }
 }
 
-class Global {
-  // Light mode colors
-  static Color primary = const Color(0xff5E00F5);
-  static Color foreground = const Color(0xff1C1C23);
-  static Color foregroundAlt = Colors.black;
-  static Color background = const Color(0xffFCF7F8);
 
-  // Dark mode colors
-  static Color? primaryDark = const Color(0xff5E00F5);
-  static Color foregroundDark = const Color(0xffFCF7F8);
-  static Color foregroundAltDark = const Color(0xffD2D2D2);
-  static Color backgroundDark = const Color(0xff1C1C23);
-}
 
-class Pallete {
-  final BuildContext context;
-
-  Pallete(this.context);
-
-  Color primary() => Theme.of(context).primaryColor;
-  Color primaryLight() => Theme.of(context).primaryColorLight;
-  Color primaryDark() => Theme.of(context).primaryColorDark;
-  Color background() => Theme.of(context).backgroundColor;
-}

@@ -1,5 +1,7 @@
 library config.globals;
 
+import 'router/app_router.gr.dart';
 import 'theme.dart';
 
-ThemeChanger themeChanger = ThemeChanger();
+final ThemeChanger themeChanger = ThemeChanger();
+final AppRouter appRouter = AppRouter();

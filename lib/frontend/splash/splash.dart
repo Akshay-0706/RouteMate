@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:routing/frontend/splash/components/body.dart';
+import 'package:routing/size.dart';
 
 class Splash extends StatelessWidget {
   const Splash({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    SizeConfig(context);
+    return const Scaffold(
+      body: SplashBody(),
+    );
   }
 }

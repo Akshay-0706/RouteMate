@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:routing/const.dart';
 
 class CustomPageRoute extends PageRoute {
   CustomPageRoute(this.context, this.child);
@@ -6,7 +7,7 @@ class CustomPageRoute extends PageRoute {
   final BuildContext context;
 
   @override
-  Color? get barrierColor => Theme.of(context).backgroundColor;
+  Color? get barrierColor => Pallete(context).background;
 
   @override
   String? get barrierLabel => null;
