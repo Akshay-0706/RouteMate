@@ -42,21 +42,21 @@ dependencies:
   cached_network_image: ^3.2.2
   connectivity_plus: ^3.0.2
   cupertino_icons: ^1.0.2
-  dio: ^4.0.6
+  dio: ^5.0.0
   dotted_line: ^3.1.0
   drop_shadow: ^0.0.1+4
   dropdown_button2: ^1.8.1
-  firebase_auth: ^3.4.1
-  firebase_core: ^1.10.0
-  firebase_database: ^9.0.18
+  firebase_auth: ^4.2.9
+  firebase_core: ^2.7.0
+  firebase_database: ^10.0.14
   flutter_animarker: ^3.2.0
   flutter_bloc: ^8.1.2
   flutter_svg: ^1.1.1+1
   font_awesome_flutter: ^10.2.1
   get_storage: ^2.0.3
   google_maps_flutter: ^2.2.3
-  google_sign_in: ^5.4.0
-  lottie: ^1.4.3
+  google_sign_in: ^6.0.0
+  lottie: ^2.2.0
   package_info_plus: ^3.0.1
   permission_handler: ^10.2.0
   share_plus: ^6.2.0
