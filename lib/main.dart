@@ -1,13 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:routing/const.dart';
 import 'package:routing/theme.dart';
+import 'package:routing/utils.dart';
 import 'firebase_options.dart';
 import 'global.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
+  await dotenv.load(fileName: ".env");
+  Constants.MAP_API_KEY = dotenv.env['MAP_API_KEY']!;
+
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
+  locationIcon = await BitmapDescriptor.fromAssetImage(
+    const ImageConfiguration(
+      size: Size(5, 5),
+    ),
+    "assets/icons/location.png",
+  );
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -24,7 +37,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final box = GetStorage();
-  
+
   @override
   void initState() {
     themeChanger.isDarkMode = themeChanger.currentTheme() == ThemeMode.system

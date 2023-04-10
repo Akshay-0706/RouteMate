@@ -1,0 +1,62 @@
+{
+    "destination_addresses": [
+        "585 Schenectady Ave, Brooklyn, NY 11203, USA",
+        "102-1 66th Rd, Forest Hills, NY 11375, USA",
+        "1000 N Village Ave, Rockville Centre, NY 11570, USA",
+        "3-28 Beach 19th St, Queens, NY 11691, USA"
+    ],
+    "origin_addresses": [
+        "P.O. Box 793, Brooklyn, NY 11207, USA"
+    ],
+    "rows": [
+        {
+            "elements": [
+                {
+                    "distance": {
+                        "text": "4.7 km",
+                        "value": 4661
+                    },
+                    "duration": {
+                        "text": "19 mins",
+                        "value": 1119
+                    },
+                    "status": "OK"
+                },
+                {
+                    "distance": {
+                        "text": "13.8 km",
+                        "value": 13784
+                    },
+                    "duration": {
+                        "text": "23 mins",
+                        "value": 1374
+                    },
+                    "status": "OK"
+                },
+                {
+                    "distance": {
+                        "text": "25.6 km",
+                        "value": 25557
+                    },
+                    "duration": {
+                        "text": "29 mins",
+                        "value": 1768
+                    },
+                    "status": "OK"
+                },
+                {
+                    "distance": {
+                        "text": "21.3 km",
+                        "value": 21332
+                    },
+                    "duration": {
+                        "text": "34 mins",
+                        "value": 2067
+                    },
+                    "status": "OK"
+                }
+            ]
+        }
+    ],
+    "status": "OK"
+}

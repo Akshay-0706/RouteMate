@@ -24,3 +24,12 @@ class Pallete {
   Color get primaryDark => Theme.of(context).primaryColorDark;
   Color get background => Theme.of(context).backgroundColor;
 }
+
+class Constants {
+  static late final MAP_API_KEY;
+
+  static const String MAP_BASE_URL = "https://maps.googleapis.com/maps/api/";
+
+  static const int TRUCK_CAPACITY = 20;
+  static const int NO_OF_TRUCKS = 20;
+}
