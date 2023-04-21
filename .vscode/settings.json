@@ -15,4 +15,5 @@
         ".flutter-plugins-dependencies": true,
         ".metadata": true,
     },
+    "files.autoSave": "off",
 }
