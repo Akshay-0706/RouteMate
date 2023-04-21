@@ -24,3 +24,8 @@ class Pallete {
   Color get primaryDark => Theme.of(context).primaryColorDark;
   Color get background => Theme.of(context).backgroundColor;
 }
+
+class Backend {
+  static int truckCapacity = 0;
+  static int truckSpeed = 20;
+}
