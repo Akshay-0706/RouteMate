@@ -32,4 +32,8 @@ class Constants {
 
   static const int TRUCK_CAPACITY = 20;
   static const int NO_OF_TRUCKS = 20;
+// class Backend {
+//   static int truckCapacity = 0;
+//   static int truckSpeed = 20;
+
 }

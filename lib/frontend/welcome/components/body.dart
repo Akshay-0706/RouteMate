@@ -42,115 +42,83 @@ class _WelcomeBodyState extends State<WelcomeBody> {
   Widget build(BuildContext context) {
     Pallete pallete = Pallete(context);
     return SafeArea(
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SvgPicture.asset("assets/extras/welcome_star.svg"),
-          Positioned(
-              right: 0,
-              child: SvgPicture.asset("assets/extras/welcome_trs_circle.svg")),
-          Positioned(
-              right: 0,
-              child: SvgPicture.asset("assets/extras/welcome_trs_border.svg")),
-          Positioned(
-            top: SizeConfig.height * 0.15,
-            child: Stack(
-              alignment: AlignmentDirectional.centerStart,
-              children: [
-                SvgPicture.asset("assets/extras/welcome_mls_circle.svg"),
-                SvgPicture.asset("assets/extras/welcome_mls_border.svg"),
-              ],
-            ),
+          const Spacer(),
+          const Spacer(),
+          LottieBuilder.asset(
+            "assets/extras/lottie_welcome.json",
+            repeat: true,
           ),
-          Positioned(
-            top: SizeConfig.height * 0.4,
-            right: 0,
-            child: Stack(
-              alignment: AlignmentDirectional.centerEnd,
-              children: [
-                SvgPicture.asset("assets/extras/welcome_mrs_circle.svg"),
-                SvgPicture.asset("assets/extras/welcome_mrs_border.svg"),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Spacer(),
-              const Spacer(),
-              LottieBuilder.asset(
-                "assets/extras/lottie_welcome.json",
-                repeat: true,
-              ),
-              const Spacer(),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: getHeight(20)),
-                child: SizedBox(
-                  width: getWidth(220),
-                  child: Text(
-                    "We Need To Change Our Society",
-                    style: TextStyle(
-                      color: pallete.primaryDark,
-                      fontSize: getWidth(22),
-                    ),
-                  ),
+          const Spacer(),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: getHeight(20)),
+            child: SizedBox(
+              width: getWidth(220),
+              child: Text(
+                "We Need To Change Our Society",
+                style: TextStyle(
+                  color: pallete.primaryDark,
+                  fontSize: getWidth(22),
                 ),
               ),
-              const SizedBox(height: 10),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: getHeight(20)),
-                child: Text(
-                  "Welcome to Split-it, with this app you can easily keep track of your expenses, split bills among your friends and stay in your budget!",
-                  style: TextStyle(
-                    color: pallete.primaryLight,
-                    fontSize: getWidth(14),
-                  ),
-                ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: getHeight(20)),
+            child: Text(
+              "Welcome to Split-it, with this app you can easily keep track of your expenses, split bills among your friends and stay in your budget!",
+              style: TextStyle(
+                color: pallete.primaryLight,
+                fontSize: getWidth(14),
               ),
-              SizedBox(height: getHeight(20)),
-              if (!signin)
-                PrimaryBtn(
-                  title: "Sign in with Google",
-                  primaryColor: pallete.primary,
-                  secondaryColor: pallete.primary.withOpacity(0.8),
-                  titleColor: Colors.white,
-                  padding: getWidth(20),
-                  hasIcon: true,
-                  tap: () {
-                    setState(() {
-                      signin = true;
-                    });
-                    Auth.googleLogin().then((value) {
-                      Account? user = value;
-                      if (user != null) {
-                        if (!signedIn || box.read('email') != user.email) {
-                          box.write('name', user.name);
-                          box.write('photo', user.photo);
-                          box.write('email', user.email);
-                          box.write('id', user.id);
-                          box.write('signedIn', true);
+            ),
+          ),
+          SizedBox(height: getHeight(20)),
+          if (!signin)
+            PrimaryBtn(
+              title: "Sign in with Google",
+              primaryColor: pallete.primary,
+              secondaryColor: pallete.primary.withOpacity(0.8),
+              titleColor: Colors.white,
+              padding: getWidth(20),
+              hasIcon: true,
+              tap: () {
+                setState(() {
+                  signin = true;
+                });
+                Auth.googleLogin().then((value) {
+                  Account? user = value;
+                  if (user != null) {
+                    if (!signedIn || box.read('email') != user.email) {
+                      box.write('name', user.name);
+                      box.write('photo', user.photo);
+                      box.write('email', user.email);
+                      box.write('id', user.id);
+                      box.write('signedIn', true);
 
-                          // Database.setData(
-                          //     databaseRef, user.email, user.name, user.photo);
-                        }
-                        // Navigator.pushReplacementNamed(context, "/screen");
-                        appRouter.push(const HomeRoute());
-                      } else {
-                        setState(() {
-                          signin = false;
-                        });
-                      }
+                      // Database.setData(
+                      //     databaseRef, user.email, user.name, user.photo);
+                    }
+                    // Navigator.pushReplacementNamed(context, "/screen");
+                    appRouter.push(const HomeRoute());
+                  } else {
+                    setState(() {
+                      signin = false;
                     });
-                  },
-                ),
-              if (signin)
-                Center(
-                  child: CircularProgressIndicator(
-                    color: pallete.primary,
-                  ),
-                ),
-              SizedBox(height: getHeight(60)),
-            ],
-          ),
+                  }
+                });
+              },
+            ),
+          if (signin)
+            Center(
+              child: CircularProgressIndicator(
+                color: pallete.primary,
+              ),
+            ),
+          SizedBox(height: getHeight(60)),
         ],
       ),
     );
