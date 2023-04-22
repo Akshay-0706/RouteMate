@@ -60,4 +60,27 @@ class MapApi {
 
     return null;
   }
+
+  static Future<Directions?> getDirectionsWithWayPoints(
+      LatLng origin, LatLng destination, List<LatLng> wayPoints) async {
+    String wayPointsArray =
+        wayPoints.map((e) => '${e.latitude},${e.longitude}').join('|');
+
+    final url = Uri.parse(
+        '${Constants.MAP_BASE_URL}directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&waypoints=$wayPointsArray&key=${Constants.MAP_API_KEY}');
+
+    log.d(url.toString());
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      log.d(response.body);
+      return Directions.fromMap(jsonDecode(response.body));
+    } else {
+      log.d(response.body);
+      log.d(response.statusCode);
+    }
+
+    return null;
+  }
 }

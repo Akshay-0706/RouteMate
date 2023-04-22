@@ -1,5 +1,6 @@
 import 'package:routing/const.dart';
 import 'package:routing/models/location.dart';
+import 'package:routing/utils.dart';
 
 class DistanceMatrix {
   List<String>? destinationAddresses;
@@ -37,13 +38,13 @@ class DistanceMatrix {
 
     // distances['distances'] = rows!.map((e) => e.elements!.map((e) => e.distance!.value).toList()).toList();
 
-    for (var i = 0; i < rows!.length; i++) {
+    for (int i = 0; i < rows!.length; i++) {
       distances['$i'] = <String, dynamic>{};
 
       for (var j = 0; j < rows![i].elements!.length; j++) {
-        if (i < j) {
-          distances['$i']['$j'] = rows![i].elements![j].distance!.value;
-        }
+        // if (i < j) {
+        distances['$i']['$j'] = rows![i].elements![j].distance!.value;
+        // }
       }
     }
 
@@ -85,11 +86,11 @@ class DistanceMatrix {
     if (rows != null) {
       data['rows'] = rows!.map((v) => v.toJson()).toList();
     }
-    data['status'] = status;
 
     Map<String, dynamic> finalData = <String, dynamic>{};
     finalData['input'] = data;
-    return data;
+    log.d(finalData);
+    return finalData;
   }
 
   static String sampleResponse = '''{
