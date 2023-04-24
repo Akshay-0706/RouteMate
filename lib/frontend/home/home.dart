@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -19,6 +20,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final Completer<GoogleMapController> _controller = Completer();
+
+  late String mapStyle;
 
   static const CameraPosition mumbai = CameraPosition(
     target: LatLng(19.0760, 72.8777),
@@ -86,6 +89,10 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
+    rootBundle.loadString('assets/extras/map_style.txt').then((string) {
+      mapStyle = string;
+    }).catchError((error) => log.e(error));
+
     startSubscription();
     markers = {
       Marker(
@@ -130,10 +137,10 @@ class _HomeState extends State<Home> {
       ),
       body: GoogleMap(
         zoomControlsEnabled: false,
-        mapType: MapType.normal,
         initialCameraPosition: mumbai,
         onMapCreated: (GoogleMapController controller) {
           _controller.complete(controller);
+          controller.setMapStyle(mapStyle);
         },
         onLongPress: (LatLng argument) => addMarker(argument),
         onTap: (LatLng argument) => deleteMarker(argument),
