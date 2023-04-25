@@ -33,7 +33,6 @@ class Auth {
   static Future<void> googleLogout() async {
     GetStorage().write('signedIn', false);
     await GoogleSignIn().signOut();
-    await GoogleSignIn().disconnect();
     await FirebaseAuth.instance.signOut();
   }
 }
