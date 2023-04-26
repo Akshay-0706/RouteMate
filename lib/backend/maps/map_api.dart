@@ -10,7 +10,7 @@ class MapApi {
   static Future<DistanceMatrix?> getDistanceMatrix(
       {required LatLng origin, required LatLng destination}) async {
     final url = Uri.parse(
-        '${Constants.MAP_BASE_URL}distancematrix/json?units=metric&origins=${origin.latitude},${origin.longitude}&destinations=${destination.latitude},${destination.longitude}&key=${Constants.MAP_API_KEY}');
+        '${Constants.mapBaseUrl}distancematrix/json?units=metric&origins=${origin.latitude},${origin.longitude}&destinations=${destination.latitude},${destination.longitude}&key=${Constants.mapApiKey}');
     final response = await http.get(url);
     if (response.statusCode == 200) {
       return DistanceMatrix.fromJson(jsonDecode(response.body));
@@ -30,7 +30,7 @@ class MapApi {
         origins.map((e) => '${e.latitude},${e.longitude}').join('|');
 
     final url = Uri.parse(
-        '${Constants.MAP_BASE_URL}distancematrix/json?units=metric&origins=$originsArray&destinations=$destinationsArray&key=${Constants.MAP_API_KEY}');
+        '${Constants.mapBaseUrl}distancematrix/json?units=metric&origins=$originsArray&destinations=$destinationsArray&key=${Constants.mapApiKey}');
 
     final response = await http.get(url);
     if (response.statusCode == 200) {
@@ -46,7 +46,7 @@ class MapApi {
 
   static Future getDirections(LatLng origin, LatLng destination) async {
     final url = Uri.parse(
-        '${Constants.MAP_BASE_URL}directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=${Constants.MAP_API_KEY}');
+        '${Constants.mapBaseUrl}directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=${Constants.mapApiKey}');
 
     final response = await http.get(url);
 
@@ -67,7 +67,7 @@ class MapApi {
         wayPoints.map((e) => '${e.latitude},${e.longitude}').join('|');
 
     final url = Uri.parse(
-        '${Constants.MAP_BASE_URL}directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&waypoints=$wayPointsArray&key=${Constants.MAP_API_KEY}');
+        '${Constants.mapBaseUrl}directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&waypoints=$wayPointsArray&key=${Constants.mapApiKey}');
 
     log.d(url.toString());
 

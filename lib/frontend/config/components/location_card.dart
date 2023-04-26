@@ -7,20 +7,23 @@ import '../../../global.dart';
 class LocationCard extends StatelessWidget {
   const LocationCard({
     Key? key,
-    required this.name,
+    required this.title,
+    required this.subtitle,
     required this.capacity,
     required this.index,
     required this.color,
     required this.isEditing,
     required this.onChanged,
     required this.onSubmitted,
+    required this.myFocus,
   }) : super(key: key);
   final Color color;
-  final String name;
+  final String title, subtitle;
   final int index;
   final double capacity;
   final bool isEditing;
   final Function onChanged, onSubmitted;
+  final FocusNode myFocus;
 
   @override
   Widget build(BuildContext context) {
@@ -36,15 +39,28 @@ class LocationCard extends StatelessWidget {
         padding: EdgeInsets.all(getHeight(20)),
         child: Row(
           children: [
-            Expanded(
-              child: Text(
-                name,
-                style: TextStyle(
-                  color: Theme.of(context).primaryColorDark,
-                  fontSize: getHeight(16),
-                  fontWeight: FontWeight.bold,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColorDark,
+                    fontSize: getHeight(16),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
+                if (subtitle.isNotEmpty)
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color:
+                          Theme.of(context).primaryColorDark.withOpacity(0.7),
+                      fontSize: getHeight(14),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+              ],
             ),
             const Spacer(),
             // Text(
@@ -72,6 +88,7 @@ class LocationCard extends StatelessWidget {
                     color: Theme.of(context).primaryColorDark,
                     fontWeight: FontWeight.bold,
                   ),
+                  focusNode: index == 0 ? myFocus : null,
                   onChanged: (value) =>
                       onChanged(index, value == "" ? 0.0 : double.parse(value)),
                   onFieldSubmitted: (value) => onSubmitted(),
@@ -82,6 +99,7 @@ class LocationCard extends StatelessWidget {
                     // for below version 2 use this
                     FilteringTextInputFormatter.allow(RegExp(reg)),
                   ],
+                  cursorColor: Theme.of(context).primaryColor,
                   cursorRadius: const Radius.circular(8),
                   decoration: InputDecoration(
                     isDense: true,

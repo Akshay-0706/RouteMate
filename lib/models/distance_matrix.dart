@@ -7,7 +7,6 @@ class DistanceMatrix {
   List<String>? originAddresses;
   List<Rows>? rows;
   String? status;
-  int? variance;
 
   List<Location> locations = [];
   Location? destination, source; // update here
@@ -32,9 +31,9 @@ class DistanceMatrix {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['cap'] = Constants.TRUCK_CAPACITY;
-    data['k'] = Constants.NO_OF_TRUCKS;
-    data['variance'] = variance ?? 10;
+    data['cap'] = Constants.truckCapacity;
+    data['k'] = Constants.noOfTrucks;
+    data['variance'] = Constants.variance;
 
     Map<String, dynamic> distances = <String, dynamic>{};
 
@@ -82,7 +81,7 @@ class DistanceMatrix {
         'lat': this.locations[i].latitude,
         'lon': this.locations[i].longitude,
         'name': this.locations[i].name,
-        'capacity': this.locations[i].capacity ?? 0
+        'cap': this.locations[i].capacity ?? 0
       };
     }
 

@@ -4,9 +4,9 @@ import 'package:routing/frontend/config/components/body.dart';
 import 'package:routing/models/location.dart';
 
 class Config extends StatelessWidget {
-  Config({super.key, required this.locations});
+  const Config({super.key, required this.locations});
 
-  List<Marker> locations;
+  final List<Marker> locations;
 
   @override
   Widget build(BuildContext context) {

@@ -31,7 +31,7 @@ class ConfigNav extends StatelessWidget {
         ),
         const Spacer(),
         Text(
-          "Set Details",
+          "Add details",
           style: TextStyle(
             color: Theme.of(context).primaryColorDark,
             fontSize: getHeight(20),

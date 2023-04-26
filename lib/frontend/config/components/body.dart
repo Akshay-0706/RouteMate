@@ -1,106 +1,177 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:routing/backend/algorithm/api.dart';
+import 'package:routing/backend/maps/map_api.dart';
+import 'package:routing/const.dart';
 import 'package:routing/frontend/config/components/config_footer.dart';
 import 'package:routing/frontend/config/components/config_info.dart';
 import 'package:routing/frontend/config/components/config_nav.dart';
 import 'package:routing/frontend/config/components/location_card.dart';
+import 'package:routing/global.dart';
+import 'package:routing/models/distance_matrix.dart';
 import 'package:routing/models/location.dart';
 import 'package:routing/size.dart';
+import 'package:routing/utils.dart';
 
 class ConfigBody extends StatefulWidget {
-  ConfigBody({super.key, required this.locations});
+  const ConfigBody({super.key, required this.locations});
 
-  List<Marker> locations;
+  final List<Marker> locations;
 
   @override
   State<ConfigBody> createState() => _ConfigBodyState();
 }
 
 class _ConfigBodyState extends State<ConfigBody> {
-  String name = "";
-  double amt = 0, willGet = 0, willPay = 0, paidByMe = 0, totalAmt = 0;
-  bool isSource = true, isEditing = false;
-  // int paidBy = -1;
+  int vehicles = 0;
+  double vehicleCap = 0, totalCap = 0.0;
+  bool isSource = true,
+      isSourceSelected = false,
+      isDestSelected = false,
+      isUnequal = false,
+      allCapAreNonZero = true;
   bool readyToSubmit = false;
   int source = -1, dest = -1;
 
-  late final List<Marker> friends;
-  List<double> amounts = [];
+  late final List<Marker> locations;
+  List<double> capacities = [];
 
-  final TextEditingController controller = TextEditingController();
   final FocusNode myFocus = FocusNode();
   final List<FocusNode> focusNode = [];
 
-  void onChangedBillName(String name) {
-    this.name = name;
-    // validator();
+  void onChangedVehicles(int vehicles) {
+    this.vehicles = vehicles;
+    validator();
   }
 
-  void onChangedPrice(double amt) {
+  void onChangedCapacity(double vehicleCap) {
     setState(() {
-      this.amt = amt;
+      this.vehicleCap = vehicleCap;
     });
-    // validator();
+    validator();
   }
 
-  // void onFriendAdded(String name) {
-  //   setState(() {
-  //     friends.add(name);
-  //     amounts.add(0.0);
-  //     focusNode.add(FocusNode());
-  //   });
-  //   focusNode[focusNode.length - 1].requestFocus();
-  //   validator();
-  // }
-
-  // void validator() {
-  //   if (name.isNotEmpty && amt != 0 && friends.isNotEmpty) {
-  //     if (isEditing) {
-  //       if (totalAmt == amt) {
-  //         setState(() {
-  //           readyToSubmit = true;
-  //         });
-  //       } else {
-  //         setState(() {
-  //           readyToSubmit = false;
-  //         });
-  //       }
-  //     } else {
-  //       setState(() {
-  //         readyToSubmit = true;
-  //       });
-  //     }
-  //   } else {
-  //     setState(() {
-  //       readyToSubmit = false;
-  //     });
-  //   }
-  // }
+  void validator() {
+    setState(() {
+      readyToSubmit = vehicles != 0 &&
+          vehicleCap != 0 &&
+          totalCap != 0 &&
+          isSourceSelected &&
+          isDestSelected &&
+          allCapAreNonZero;
+    });
+  }
 
   void onAmtChanged(int index, double value) {
-    //TODO
     setState(() {
-      // if (index == -1) {
-      //   totalAmt -= paidByMe;
-      //   paidByMe = value;
-      //   totalAmt += paidByMe;
-      // } else {
-      totalAmt -= amounts[index];
-      amounts[index] = value;
-      totalAmt += amounts[index];
-      // }
+      totalCap -= capacities[index];
+      capacities[index] = value;
+      totalCap += capacities[index];
+      allCapAreNonZero = true;
+      for (var capacity in capacities) {
+        if (capacity == 0) allCapAreNonZero = false;
+      }
     });
-    // validator();
+    validator();
   }
 
   @override
   void initState() {
-    friends = widget.locations;
+    locations = widget.locations;
+    totalCap = 30.0 * locations.length;
 
-    for (int i = 0; i < friends.length; i++) {
-      amounts.add(30);
+    for (int i = 0; i < locations.length; i++) {
+      capacities.add(0.0);
     }
     super.initState();
+  }
+
+  Future<void> onSubmitted() async {
+    print('hello called');
+    log.d('hello called');
+    // final distanceMatrix = DistanceMatrix.fromJson(
+    //     jsonDecode(DistanceMatrix.sampleResponse));
+    log.w(locations);
+    Marker sourceMarker = locations[source];
+    Marker destMarker = locations[dest];
+
+    final List<LatLng> allLocations = [];
+
+    locations.remove(sourceMarker);
+    locations.remove(destMarker);
+    log.w(locations);
+
+    Constants.noOfTrucks = vehicles;
+    Constants.truckCapacity = vehicleCap;
+
+    for (int i = 0; i < locations.length; i++) {
+      Marker element = locations.elementAt(i);
+      allLocations
+          .add(LatLng(element.position.latitude, element.position.longitude));
+    }
+
+    final DistanceMatrix? res1 = await MapApi.getDistances(
+      //origins
+      allLocations,
+      //destinations
+      allLocations,
+    );
+
+    if (res1 == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error fetching distances'),
+        ),
+      );
+      return;
+    }
+
+    for (int i = 0; i < locations.length; i++) {
+      Marker marker = locations.elementAt(i);
+
+      res1.locations.add(
+        Location(
+          latitude: marker.position.latitude,
+          longitude: marker.position.longitude,
+          name: res1.destinationAddresses![i],
+          id: int.parse(marker.markerId.value),
+        ),
+      );
+    }
+
+    log.d(res1.rows!.length);
+
+    await API.addData(res1);
+
+    final DistanceMatrix? res2 = await MapApi.getDistances(
+      //origins
+      // [LatLng(19.09, 72.89)],
+      [LatLng(sourceMarker.position.latitude, sourceMarker.position.longitude)],
+      //destinations
+      allLocations,
+    );
+
+    if (res2 == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error fetching distances'),
+        ),
+      );
+      return;
+    }
+
+    await API.addSourceDest(
+        Location(
+            latitude: sourceMarker.position.latitude,
+            longitude: sourceMarker.position.longitude,
+            name: "Source",
+            id: source),
+        Location(
+            latitude: destMarker.position.latitude,
+            longitude: destMarker.position.longitude,
+            name: "Destination",
+            id: dest),
+        res2);
   }
 
   @override
@@ -112,11 +183,16 @@ class _ConfigBodyState extends State<ConfigBody> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            ConfigNav(readyToSubmit: readyToSubmit, onSubmitted: () {}),
+            ConfigNav(
+                readyToSubmit: readyToSubmit,
+                onSubmitted: () {
+                  onSubmitted();
+                  appRouter.pop();
+                }),
             SizedBox(height: getHeight(40)),
             ConfigInfo(
-              onChangedBillName: onChangedBillName,
-              onChangedPrice: onChangedPrice,
+              onChangedVehicles: onChangedVehicles,
+              onChangedCapacity: onChangedCapacity,
             ),
             SizedBox(height: getHeight(20)),
             Text(
@@ -125,36 +201,6 @@ class _ConfigBodyState extends State<ConfigBody> {
                 color: Theme.of(context).primaryColorDark,
                 fontSize: getHeight(18),
                 fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: getHeight(20)),
-            Container(
-              decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColorDark.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8)),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: getHeight(10)),
-                child: TextFormField(
-                  controller: controller,
-                  style: TextStyle(color: Theme.of(context).primaryColorDark),
-                  // onFieldSubmitted: (value) {
-                  //   if (value.isNotEmpty) {
-                  //     onFriendAdded(value);
-                  //     controller.text = "";
-                  //   }
-                  // },
-                  keyboardType: TextInputType.text,
-                  cursorRadius: const Radius.circular(8),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: "Friend's name",
-                    hintStyle: TextStyle(
-                        color: Theme.of(context)
-                            .primaryColorLight
-                            .withOpacity(0.5),
-                        fontSize: getHeight(16)),
-                  ),
-                ),
               ),
             ),
             SizedBox(height: getHeight(20)),
@@ -173,35 +219,71 @@ class _ConfigBodyState extends State<ConfigBody> {
                   ),
                 ),
                 SizedBox(width: getHeight(10)),
-                Text(
-                  "Source/Destination",
-                  style: TextStyle(
-                    color: Theme.of(context).primaryColorDark,
-                    fontSize: getHeight(14),
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      "Source",
+                      style: TextStyle(
+                        color: isSource
+                            ? Theme.of(context).primaryColorDark
+                            : Theme.of(context)
+                                .primaryColorLight
+                                .withOpacity(0.5),
+                        fontSize: getHeight(14),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      "/",
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColorDark,
+                        fontSize: getHeight(14),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      "Destination",
+                      style: TextStyle(
+                        color: isSource
+                            ? Theme.of(context)
+                                .primaryColorLight
+                                .withOpacity(0.5)
+                            : Theme.of(context).primaryColorDark,
+                        fontSize: getHeight(14),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
                 const Spacer(),
                 SizedBox(width: getHeight(20)),
                 InkWell(
                   onTap: () {
                     setState(() {
-                      isEditing = !isEditing;
-                      if (isEditing) {
+                      isUnequal = !isUnequal;
+                      if (isUnequal) {
+                        totalCap = 0.0;
+                        allCapAreNonZero = false;
+                        for (int i = 0; i < locations.length; i++) {
+                          capacities[i] = 0.0;
+                        }
                         myFocus.requestFocus();
-                        // validator();
+                        validator();
+                      } else {
+                        totalCap = 30.0 * locations.length;
+                        allCapAreNonZero = true;
                       }
                     });
                   },
                   child: Icon(
-                    isEditing ? Icons.check_box : Icons.check_box_outline_blank,
+                    isUnequal ? Icons.check_box : Icons.check_box_outline_blank,
                     color: Theme.of(context).primaryColorDark,
                     size: getHeight(20),
                   ),
                 ),
                 SizedBox(width: getHeight(10)),
                 Text(
-                  "Edit Capacity",
+                  "Edit capacity",
                   style: TextStyle(
                     color: Theme.of(context).primaryColorDark,
                     fontSize: getHeight(14),
@@ -211,88 +293,60 @@ class _ConfigBodyState extends State<ConfigBody> {
               ],
             ),
             SizedBox(height: getHeight(20)),
-            // InkWell(
-            //   onTap: () {},
-            //   borderRadius: BorderRadius.circular(8),
-            //   child: LocationCard(
-            //     name: "Me",
-            //     amount: isEditing ? paidByMe : amt / (friends.length + 1),
-            //     isEditing: isEditing,
-            //     focusNode: myFocus,
-            //     onSubmitted: () {
-            //       if (focusNode.isNotEmpty) {
-            //         focusNode[0].requestFocus();
-            //       }
-            //     },
-            //     onChanged: onAmtChanged,
-            //     color: Colors.yellow,
-            //     // color: paidBy == -1
-            //     //     ? Theme.of(context).primaryColor.withOpacity(0.5)
-            //     //     : Theme.of(context).primaryColorDark.withOpacity(0.05),
-            //     index: -1,
-            //   ),
-            // ),
-            SizedBox(height: getHeight(10)),
-
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Column(
                   children: [
                     ...List.generate(
-                      friends.length,
+                      locations.length,
                       (index) => Column(
                         children: [
                           InkWell(
                             onTap: () {
-                              // if (!isSource && paidBy != index) {
-                              //   setState(() {
-                              //     paidBy = index;
-                              //   });
-                              // } else {
-                              //   setState(() {
-                              //     isSource = false;
-                              //     paidBy = index;
-                              //   });
-                              // }
-
                               if (isSource && dest != index) {
                                 source = index;
+                                isSourceSelected = true;
                               }
 
                               if (!isSource && source != index) {
                                 dest = index;
+                                isDestSelected = true;
                               }
-                              setState(() {});
+
+                              setState(() {
+                                validator();
+                              });
                             },
                             borderRadius: BorderRadius.circular(8),
                             child: LocationCard(
-                              name: source == index
-                                  ? 'Location $index (Source)'
+                              title: 'Location $index',
+                              subtitle: source == index
+                                  ? "Source"
                                   : dest == index
-                                      ? 'Location  $index (Dest)'
-                                      : 'Location $index',
-                              isEditing: isEditing,
+                                      ? "Destination"
+                                      : "",
+                              myFocus: myFocus,
+                              isEditing: isUnequal,
                               onChanged: onAmtChanged,
-                              capacity:
-                                  isEditing ? 30 : amt / (friends.length + 1),
+                              capacity: isUnequal ? totalCap : 30,
                               // color: Colors.red,
                               color: source == index
-                                  ? Colors.red
+                                  ? Theme.of(context).primaryColor
                                   : dest == index
                                       ? Colors.green
                                       : Theme.of(context)
                                           .primaryColorDark
                                           .withOpacity(0.05),
                               onSubmitted: () {
-                                if (index < friends.length - 1) {
+                                if (index < locations.length - 1) {
                                   // focusNode[index + 1].requestFocus();
                                 }
                               },
                               index: index,
                             ),
                           ),
-                          if (index != friends.length - 1)
+                          if (index != locations.length - 1)
                             SizedBox(height: getHeight(10)),
                         ],
                       ),
@@ -302,11 +356,7 @@ class _ConfigBodyState extends State<ConfigBody> {
               ),
             ),
             SizedBox(height: getHeight(20)),
-            ConfigFooter(
-              isEditing: isEditing,
-              amt: amt,
-              totalAmt: totalAmt,
-            ),
+            ConfigFooter(totalCap: totalCap),
           ],
         ),
       ),

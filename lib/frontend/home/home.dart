@@ -47,7 +47,7 @@ class _HomeState extends State<Home> {
   static DatabaseReference ref = FirebaseDatabase.instance.ref('/Algorithm2');
 
   String getMarkerId() {
-    return (markers.length + 1).toString();
+    return markers.length.toString();
   }
 
   String getPolylineId() {
@@ -148,7 +148,7 @@ class _HomeState extends State<Home> {
     setState(() {});
   }
 
-  static void startSubscription() {
+  void startSubscription() {
     subscription = ref.child('output').onValue.listen((event) {
       log.d('Data changed');
       log.d(event.snapshot.value);
@@ -156,10 +156,11 @@ class _HomeState extends State<Home> {
       dBResult = event.snapshot.value as Map;
       log.d(dBResult!['k']);
       // update result routes
+      solveOutput();
     });
   }
 
-  static void stopSubscription() {
+  void stopSubscription() {
     if (subscription != null) subscription!.cancel();
   }
 
@@ -249,23 +250,51 @@ class _HomeState extends State<Home> {
       body: Stack(
         children: [
           GoogleMap(
-              zoomControlsEnabled: false,
-              initialCameraPosition: mumbai,
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-                controller.setMapStyle(
-                    themeChanger.isDarkMode ? mapStyleDark : mapStyleLight);
-              },
-              onLongPress: (LatLng argument) => addMarker(argument),
-              onTap: (LatLng argument) => deleteMarker(argument),
-              markers: markers,
-              polylines: polylines),
+            zoomControlsEnabled: false,
+            initialCameraPosition: mumbai,
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+              controller.setMapStyle(
+                  themeChanger.isDarkMode ? mapStyleDark : mapStyleLight);
+            },
+            onTap: (LatLng argument) => addMarker(argument),
+            markers: markers,
+            polylines: polylines,
+          ),
           Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: getWidth(20), vertical: getHeight(60)),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: markers.isEmpty
+                  ? MainAxisAlignment.end
+                  : MainAxisAlignment.spaceBetween,
               children: [
+                if (markers.isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        markers.remove(markers.last);
+                      });
+                    },
+                    child: Container(
+                      height: getWidth(40),
+                      decoration: BoxDecoration(
+                        color: themeChanger.isDarkMode
+                            ? Colors.white
+                            : const Color.fromARGB(255, 0, 85, 154),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Center(
+                          child: Icon(
+                            Icons.undo_rounded,
+                            color: pallete.background,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 GestureDetector(
                   onTap: () {
                     showMenuDialog(pallete);
@@ -293,76 +322,6 @@ class _HomeState extends State<Home> {
         ],
       ),
     );
-  }
-
-  Future<void> setInput(Marker source) async {
-    print('hello called');
-    log.d('hello called');
-    // final distanceMatrix = DistanceMatrix.fromJson(
-    //     jsonDecode(DistanceMatrix.sampleResponse));
-
-    final List<LatLng> locations = [];
-
-    for (int i = 0; i < markers.length; i++) {
-      Marker element = markers.elementAt(i);
-      locations
-          .add(LatLng(element.position.latitude, element.position.longitude));
-    }
-
-    final DistanceMatrix? res1 = await MapApi.getDistances(
-      //origins
-      locations,
-      //destinations
-      locations,
-    );
-
-    if (res1 == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error fetching distances'),
-        ),
-      );
-      return;
-    }
-
-    for (int i = 0; i < markers.length; i++) {
-      Marker marker = markers.elementAt(i);
-
-      res1.locations.add(
-        Location(
-          latitude: marker.position.latitude,
-          longitude: marker.position.longitude,
-          name: res1.destinationAddresses![i],
-          id: int.parse(marker.markerId.value),
-        ),
-      );
-    }
-
-    log.d(res1.rows!.length);
-
-    await API.addData(res1);
-
-    final DistanceMatrix? res2 = await MapApi.getDistances(
-      //origins
-      // [LatLng(19.09, 72.89)],
-      [LatLng(source.position.latitude, source.position.longitude)],
-      //destinations
-      locations,
-    );
-
-    if (res2 == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error fetching distances'),
-        ),
-      );
-      return;
-    }
-
-    API.addSourceDest(
-        Location(latitude: 19, longitude: 72, name: 'name', id: 0),
-        Location(latitude: 00, longitude: 00, name: 'name', id: 0),
-        res2);
   }
 
   void setSourceDistances() {}
@@ -420,8 +379,10 @@ class _HomeState extends State<Home> {
       polylines.add(
         Polyline(
           polylineId: PolylineId(getPolylineId()),
-          color:
-              Colors.primaries[math.Random().nextInt(Colors.primaries.length)],
+          color: Constants
+              .routeColors[math.Random().nextInt(Constants.routeColors.length)],
+          // color:
+          //     Colors.primaries[math.Random().nextInt(Colors.primaries.length)],
           width: 5,
           points: element.polylinePoints
               .map((e) => LatLng(e.latitude, e.longitude))

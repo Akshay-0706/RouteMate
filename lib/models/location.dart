@@ -26,7 +26,7 @@ class Location {
       'lon': longitude,
       'name': name,
       'id': id,
-      'capacity': capacity ?? 0,
+      'cap': capacity ?? 0,
     };
   }
 }

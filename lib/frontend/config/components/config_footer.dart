@@ -2,17 +2,12 @@ import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:routing/size.dart';
 
-import '../../../global.dart';
-
 class ConfigFooter extends StatelessWidget {
   const ConfigFooter({
     Key? key,
-    required this.isEditing,
-    required this.amt,
-    required this.totalAmt,
+    required this.totalCap,
   }) : super(key: key);
-  final bool isEditing;
-  final double amt, totalAmt;
+  final double totalCap;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +24,7 @@ class ConfigFooter extends StatelessWidget {
         Row(
           children: [
             Text(
-              "Total:",
+              "Total capacity:",
               style: TextStyle(
                 color: Theme.of(context).primaryColorDark,
                 fontSize: getHeight(16),
@@ -39,7 +34,7 @@ class ConfigFooter extends StatelessWidget {
             const Spacer(),
             SizedBox(width: getHeight(10)),
             Text(
-              isEditing ? totalAmt.toStringAsFixed(2) : amt.toStringAsFixed(2),
+              totalCap.toStringAsFixed(2),
               style: TextStyle(
                 color: Colors.greenAccent,
                 fontSize: getHeight(16),
