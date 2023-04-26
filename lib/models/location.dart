@@ -3,6 +3,7 @@ class Location {
   final double longitude;
   final String name;
   final int id;
+  int? capacity;
 
   Location(
       {required this.latitude,
@@ -17,5 +18,15 @@ class Location {
       name: json['name'],
       id: json['id'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'lat': latitude,
+      'lon': longitude,
+      'name': name,
+      'id': id,
+      'capacity': capacity ?? 0,
+    };
   }
 }

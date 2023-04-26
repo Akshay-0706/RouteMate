@@ -7,9 +7,10 @@ class DistanceMatrix {
   List<String>? originAddresses;
   List<Rows>? rows;
   String? status;
+  int? variance;
 
   List<Location> locations = [];
-  Location? destination, source;
+  Location? destination, source; // update here
 
   DistanceMatrix(
       {this.destinationAddresses,
@@ -31,20 +32,23 @@ class DistanceMatrix {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['capacity'] = Constants.TRUCK_CAPACITY;
-    data['n'] = Constants.NO_OF_TRUCKS;
+    data['cap'] = Constants.TRUCK_CAPACITY;
+    data['k'] = Constants.NO_OF_TRUCKS;
+    data['variance'] = variance ?? 10;
 
     Map<String, dynamic> distances = <String, dynamic>{};
 
     // distances['distances'] = rows!.map((e) => e.elements!.map((e) => e.distance!.value).toList()).toList();
 
-    for (int i = 0; i < rows!.length; i++) {
+    for (int i = 0; i < rows!.length - 1; i++) {
       distances['$i'] = <String, dynamic>{};
 
       for (var j = 0; j < rows![i].elements!.length; j++) {
-        // if (i < j) {
-        distances['$i']['$j'] = rows![i].elements![j].distance!.value;
-        // }
+        if (i < j) {
+          distances['$i']['$j'] = rows![i].elements![j].distance!.value;
+        } else {
+          distances['$i']['$j'] = -1;
+        }
       }
     }
 
@@ -52,40 +56,43 @@ class DistanceMatrix {
 
     Map<String, dynamic> endpoints = <String, dynamic>{};
 
-    endpoints['destination'] = {
-      'id': destination!.id,
-      'lat': destination!.latitude,
-      'lon': destination!.longitude,
-      'name': destination!.name
-    };
+    // endpoints['destination'] = {
+    //   'id': destination!.id,
+    //   'lat': destination!.latitude,
+    //   'lon': destination!.longitude,
+    //   'name': destination!.name
+    // };
 
-    endpoints['source'] = {
-      'id': source!.id,
-      'lat': source!.latitude,
-      'lon': source!.longitude,
-      'name': source!.name
-    };
+    // endpoints['source'] = {
+    //   'id': source!.id,
+    //   'lat': source!.latitude,
+    //   'lon': source!.longitude,
+    //   'name': source!.name
+    // };
 
     data['endpoints'] = endpoints;
 
     Map<String, dynamic> locations = <String, dynamic>{};
+
+    log.d(this.locations.length);
 
     for (int i = 0; i < this.locations.length; i++) {
       locations['$i'] = {
         'id': this.locations[i].id,
         'lat': this.locations[i].latitude,
         'lon': this.locations[i].longitude,
-        'name': this.locations[i].name
+        'name': this.locations[i].name,
+        'capacity': this.locations[i].capacity ?? 0
       };
     }
 
     data['locations'] = locations;
 
-    data['destination_addresses'] = destinationAddresses;
-    data['origin_addresses'] = originAddresses;
-    if (rows != null) {
-      data['rows'] = rows!.map((v) => v.toJson()).toList();
-    }
+    // data['destination_addresses'] = destinationAddresses;
+    // data['origin_addresses'] = originAddresses;
+    // if (rows != null) {
+    //   data['rows'] = rows!.map((v) => v.toJson()).toList();
+    // }
 
     Map<String, dynamic> finalData = <String, dynamic>{};
     finalData['input'] = data;

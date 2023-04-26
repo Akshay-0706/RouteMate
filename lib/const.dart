@@ -31,7 +31,7 @@ class Constants {
   static const String MAP_BASE_URL = "https://maps.googleapis.com/maps/api/";
 
   static const int TRUCK_CAPACITY = 20;
-  static const int NO_OF_TRUCKS = 20;
+  static const int NO_OF_TRUCKS = 3;
 // class Backend {
 //   static int truckCapacity = 0;
 //   static int truckSpeed = 20;
