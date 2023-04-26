@@ -355,6 +355,7 @@ class _HomeState extends State<Home> {
     // }
 
     for (List<LatLng> route in resultRoutePoints!) {
+      log.d(route.toString());
       Directions? res = await MapApi.getDirectionsWithWayPoints(
         //start point
         route[0],
