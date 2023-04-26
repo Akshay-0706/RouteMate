@@ -174,20 +174,6 @@ class _HomeState extends State<Home> {
     }).catchError((error) => log.e(error));
 
     startSubscription();
-    markers = {
-      Marker(
-        markerId: MarkerId(getMarkerId()),
-        position: const LatLng(19.0760, 72.8777),
-        draggable: true,
-        icon: locationIcon,
-      ),
-      Marker(
-        markerId: MarkerId(getMarkerId()),
-        position: const LatLng(19.09, 72.97),
-        draggable: true,
-        icon: locationIcon,
-      ),
-    };
 
     super.initState();
   }
@@ -234,6 +220,8 @@ class _HomeState extends State<Home> {
 
   //https://maps.googleapis.com/maps/api/directions/json?destination=Montreal&origin=Toronto&key=YOUR_API_KEY
 
+  Directions? resultRoute;
+
   List<List<LatLng>>? resultRoutePoints;
 
   @override
@@ -247,13 +235,8 @@ class _HomeState extends State<Home> {
               ? Colors.white
               : const Color.fromARGB(255, 0, 85, 154),
           onPressed: () async {
-            resultRoute = await MapApi.getDirectionsWithWayPoints(
-                const LatLng(19.0760, 72.8777), const LatLng(19.09, 72.97), [
-              const LatLng(19.0790, 72.91),
-              const LatLng(19.08, 72.92),
-            ]);
-            log.d(resultRoute?.polylinePoints.length);
-            setState(() {});
+            // setInput();
+            appRouter.push(ConfigRoute(locations: markers.toList()));
           },
           child: Icon(
             Icons.play_arrow_rounded,
@@ -266,28 +249,17 @@ class _HomeState extends State<Home> {
       body: Stack(
         children: [
           GoogleMap(
-            zoomControlsEnabled: false,
-            initialCameraPosition: mumbai,
-            onMapCreated: (GoogleMapController controller) {
-              _controller.complete(controller);
-              controller.setMapStyle(
-                  themeChanger.isDarkMode ? mapStyleDark : mapStyleLight);
-            },
-            onLongPress: (LatLng argument) => addMarker(argument),
-            onTap: (LatLng argument) => deleteMarker(argument),
-            markers: markers,
-            polylines: {
-              if (resultRoute != null)
-                Polyline(
-                  polylineId: PolylineId(getPolylineId()),
-                  points: resultRoute!.polylinePoints
-                      .map((e) => LatLng(e.latitude, e.longitude))
-                      .toList(),
-                  width: 3,
-                  color: Colors.red,
-                ),
-            },
-          ),
+              zoomControlsEnabled: false,
+              initialCameraPosition: mumbai,
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+                controller.setMapStyle(
+                    themeChanger.isDarkMode ? mapStyleDark : mapStyleLight);
+              },
+              onLongPress: (LatLng argument) => addMarker(argument),
+              onTap: (LatLng argument) => deleteMarker(argument),
+              markers: markers,
+              polylines: polylines),
           Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: getWidth(20), vertical: getHeight(60)),
@@ -467,8 +439,6 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 }
-<<<<<<< HEAD
-=======
 
 /*
 
@@ -529,4 +499,3 @@ class _HomeState extends State<Home> {
         },
      
 */
->>>>>>> 234176c131f989460e391de46fb05e49a68f7586
