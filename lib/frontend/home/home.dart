@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:routing/backend/algorithm/api.dart';
 import 'package:routing/backend/maps/map_api.dart';
+import 'package:routing/global.dart';
 import 'package:routing/models/directions.dart';
 import 'package:routing/models/distance_matrix.dart';
 import 'package:routing/models/location.dart';
+import 'package:routing/router/app_router.gr.dart';
 import 'package:routing/utils.dart';
 
 class Home extends StatefulWidget {
@@ -165,6 +167,7 @@ class _HomeState extends State<Home> {
         backgroundColor: const Color.fromARGB(255, 0, 85, 154),
         onPressed: () async {
           // setInput();
+          appRouter.push(ConfigRoute(locations: markers.toList()));
         },
         child: const Icon(
           Icons.arrow_forward,
@@ -228,33 +231,6 @@ class _HomeState extends State<Home> {
         ),
       );
     }
-
-    // for (int i = 2; i < markers.length; i++) {
-    //   Marker element = markers.elementAt(i);
-    //   res.locations.add(
-    //     Location(
-    //       latitude: element.position.latitude,
-    //       longitude: element.position.longitude,
-    //       name: 'Location',
-    //       id: int.parse(element.mapsId.value),
-    //     ),
-    //   );
-    // }
-
-    // Marker dest = markers.elementAt(1);
-    // Marker src = markers.elementAt(0);
-
-    // res.destination = Location(
-    //     latitude: dest.position.latitude,
-    //     longitude: dest.position.longitude,
-    //     name: res.destinationAddresses![0],
-    //     id: int.parse(dest.mapsId.value));
-
-    // res.source = Location(
-    //     latitude: src.position.latitude,
-    //     longitude: src.position.longitude,
-    //     name: res.originAddresses![0],
-    //     id: int.parse(src.mapsId.value));
 
     log.d(res1.rows!.length);
 
