@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:math' as Math;
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:routing/backend/algorithm/api.dart';
 import 'package:routing/backend/maps/map_api.dart';
 import 'package:routing/models/directions.dart';
-import 'package:routing/models/distance_matrix.dart';
-import 'package:routing/models/location.dart';
 import 'package:routing/utils.dart';
 
 class Home extends StatefulWidget {
@@ -25,16 +22,14 @@ class _HomeState extends State<Home> {
     zoom: 13,
   );
 
-  // BitmapDescriptor markerIcon = BitmapDescriptor.defaultMarker;
-
   static StreamSubscription<DatabaseEvent>? subscription;
 
-  static var result;
+  static Map? dBResult;
 
   Set<Marker> markers = {};
   Set<Polyline> polylines = {};
 
-  Directions? resultRoute; // currently for 1, make for k
+  List<Directions>? resultRoutes;
   static DatabaseReference ref = FirebaseDatabase.instance.ref('/Algorithm2');
 
   String getMarkerId() {
@@ -54,7 +49,68 @@ class _HomeState extends State<Home> {
         icon: locationIcon,
       ),
     );
+    log.d('markers length: ${markers.length}');
     setState(() {});
+  }
+
+  LatLng? getLatLongByMarkerId(int id) {
+    LatLng? result;
+
+    for (Marker element in markers) {
+      if (element.markerId.value == id.toString()) {
+        result = element.position;
+      }
+    }
+
+    return result;
+  }
+
+  void getRoutes2(List r) {
+    List<List<LatLng>> result = [];
+
+    log.d(r.length);
+    log.d(r.first?.length);
+
+    for (int i = 0; i < r.length; i++) {
+      List<LatLng> subresult = [];
+
+      for (int j = 0; j < r[i].length; j++) {
+        log.d(r[i][j]);
+        LatLng? latLng = getLatLongByMarkerId(r[i][j]);
+
+        if (latLng != null) {
+          subresult.add(latLng);
+        } else {
+          log.d('Null');
+        }
+      }
+
+      result.add(subresult);
+    }
+
+    resultRoutePoints = result;
+  }
+
+  void getRoutes(Map map, int k) {
+    List<List<LatLng>> result = [];
+
+    for (int i = 0; i < k; i++) {
+      List<LatLng> subresult = [];
+
+      for (int j = 0; j < map[i].length; j++) {
+        LatLng? latLng = getLatLongByMarkerId(map[i][j]);
+
+        if (latLng != null) {
+          subresult.add(latLng);
+        } else {
+          log.d('Null');
+        }
+      }
+
+      result.add(subresult);
+    }
+
+    resultRoutePoints = result;
   }
 
   bool inRange(LatLng latLng1, LatLng latLng2) {
@@ -74,8 +130,8 @@ class _HomeState extends State<Home> {
     subscription = ref.child('output').onValue.listen((event) {
       log.d('Data changed');
       log.d(event.snapshot.value);
-      result = event.snapshot.value as Map;
-      log.d(result['k']);
+      dBResult = event.snapshot.value as Map;
+      log.d(dBResult!['k']);
       // update result routes
     });
   }
@@ -87,19 +143,6 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     startSubscription();
-    markers = {
-      Marker(
-        markerId: MarkerId(getMarkerId()),
-        position: const LatLng(19.0760, 72.8777),
-        draggable: true,
-        icon: locationIcon,
-      ),
-      Marker(
-        markerId: MarkerId(getMarkerId()),
-        position: const LatLng(19.09, 72.97),
-        icon: locationIcon,
-      ),
-    };
 
     super.initState();
   }
@@ -108,20 +151,17 @@ class _HomeState extends State<Home> {
 
   //https://maps.googleapis.com/maps/api/directions/json?destination=Montreal&origin=Toronto&key=YOUR_API_KEY
 
+  List<List<LatLng>>? resultRoutePoints;
+
   @override
   Widget build(BuildContext context) {
+    log.d(resultRoutes?.length);
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color.fromARGB(255, 0, 85, 154),
         onPressed: () async {
-          resultRoute = await MapApi.getDirectionsWithWayPoints(
-              const LatLng(19.0760, 72.8777), const LatLng(19.09, 72.97), [
-            const LatLng(19.0790, 72.91),
-            const LatLng(19.08, 72.92),
-          ]);
-          log.d(resultRoute?.polylinePoints.length);
-          setState(() {});
+          solveOutput();
         },
         child: const Icon(
           Icons.arrow_forward,
@@ -138,19 +178,76 @@ class _HomeState extends State<Home> {
         onLongPress: (LatLng argument) => addMarker(argument),
         onTap: (LatLng argument) => deleteMarker(argument),
         markers: markers,
-        polylines: {
-          if (resultRoute != null)
-            Polyline(
-              polylineId: PolylineId(getPolylineId()),
-              points: resultRoute!.polylinePoints
-                  .map((e) => LatLng(e.latitude, e.longitude))
-                  .toList(),
-              width: 5,
-              color: Colors.red,
-            ),
-        },
+        polylines: polylines,
       ),
     );
+  }
+
+  void solve() async {
+    // if (markers.isEmpty) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(
+    //       content: Text('No Locations selected'),
+    //     ),
+    //   );
+    //   return;
+    // }
+
+    for (List<LatLng> route in resultRoutePoints!) {
+      Directions? res = await MapApi.getDirectionsWithWayPoints(
+        //start point
+        route[0],
+        //end point
+        route[route.length - 1],
+        // other points
+        route.sublist(1, route.length - 1),
+      );
+
+      if (res == null) {
+        log.d('Null');
+      } else {
+        log.d(res.polylinePoints.length);
+      }
+
+      resultRoutes ??= [];
+
+      resultRoutes!.add(res!);
+    }
+
+    for (Directions element in resultRoutes!) {
+      polylines.add(
+        Polyline(
+          polylineId: PolylineId(getPolylineId()),
+          color:
+              Colors.primaries[Math.Random().nextInt(Colors.primaries.length)],
+          width: 5,
+          points: element.polylinePoints
+              .map((e) => LatLng(e.latitude, e.longitude))
+              .toList(),
+        ),
+      );
+    }
+
+    setState(() {});
+  }
+
+  void solveOutput() {
+    if (dBResult == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No Output'),
+        ),
+      );
+      return;
+    }
+
+    int k = dBResult!['k'];
+
+    // getRoutes(dBResult!['routes'], k);
+
+    getRoutes2(dBResult!['routes']);
+
+    solve();
   }
 
   @override
