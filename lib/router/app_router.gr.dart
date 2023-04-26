@@ -13,9 +13,8 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:auto_route/auto_route.dart' as _i5;
 import 'package:flutter/material.dart' as _i6;
-import 'package:google_maps_flutter/google_maps_flutter.dart' as _i7;
 
-import '../frontend/config/config.dart' as _i4;
+import '../frontend/home/comonents/dialog.dart' as _i4;
 import '../frontend/home/home.dart' as _i3;
 import '../frontend/splash/splash.dart' as _i1;
 import '../frontend/welcome/welcome.dart' as _i2;
@@ -44,14 +43,10 @@ class AppRouter extends _i5.RootStackRouter {
         child: const _i3.Home(),
       );
     },
-    ConfigRoute.name: (routeData) {
-      final args = routeData.argsAs<ConfigRouteArgs>();
+    MenuDialogRoute.name: (routeData) {
       return _i5.MaterialPageX<dynamic>(
         routeData: routeData,
-        child: _i4.Config(
-          key: args.key,
-          locations: args.locations,
-        ),
+        child: _i4.MenuDialog(),
       );
     },
   };
@@ -71,8 +66,8 @@ class AppRouter extends _i5.RootStackRouter {
           path: '/Home',
         ),
         _i5.RouteConfig(
-          ConfigRoute.name,
-          path: '/Config',
+          MenuDialogRoute.name,
+          path: '/menu-dialog',
         ),
       ];
 }
@@ -114,35 +109,13 @@ class HomeRoute extends _i5.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i4.Config]
-class ConfigRoute extends _i5.PageRouteInfo<ConfigRouteArgs> {
-  ConfigRoute({
-    _i6.Key? key,
-    required List<_i7.Marker> locations,
-  }) : super(
-          ConfigRoute.name,
-          path: '/Config',
-          args: ConfigRouteArgs(
-            key: key,
-            locations: locations,
-          ),
+/// [_i4.MenuDialog]
+class MenuDialogRoute extends _i5.PageRouteInfo<void> {
+  const MenuDialogRoute()
+      : super(
+          MenuDialogRoute.name,
+          path: '/menu-dialog',
         );
 
-  static const String name = 'ConfigRoute';
-}
-
-class ConfigRouteArgs {
-  const ConfigRouteArgs({
-    this.key,
-    required this.locations,
-  });
-
-  final _i6.Key? key;
-
-  final List<_i7.Marker> locations;
-
-  @override
-  String toString() {
-    return 'ConfigRouteArgs{key: $key, locations: $locations}';
-  }
+  static const String name = 'MenuDialogRoute';
 }

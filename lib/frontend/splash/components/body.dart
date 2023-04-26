@@ -16,7 +16,7 @@ class SplashBody extends StatefulWidget {
 
 class _SplashBodyState extends State<SplashBody> {
   double begin = 0, end = 1;
-  int splashDuration = 900;
+  int splashDuration = 1250;
   late bool signedIn;
 
   @override

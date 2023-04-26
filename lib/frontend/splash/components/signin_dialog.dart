@@ -17,7 +17,6 @@ class SigninDialog extends StatelessWidget {
     Pallete pallete = Pallete(context);
     return FutureBuilder(
       future: Auth.googleLogin().then((value) {
-        // Navigator.pushReplacementNamed(context, "/screen");
         appRouter.push(const HomeRoute());
       }),
       builder: (context, snapshot) {

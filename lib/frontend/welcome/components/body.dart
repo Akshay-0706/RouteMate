@@ -28,12 +28,7 @@ class _WelcomeBodyState extends State<WelcomeBody> {
   @override
   void initState() {
     signedIn = box.read('signedIn') ?? false;
-    // sharedPreferences.then((value) {
-    //   pref = value;
-    //   setState(() {
-    //     prefIsReady = true;
-    //   });
-    // });
+
     super.initState();
   }
 
@@ -46,17 +41,19 @@ class _WelcomeBodyState extends State<WelcomeBody> {
         children: [
           const Spacer(),
           const Spacer(),
-          LottieBuilder.asset(
-            "assets/extras/lottie_welcome.json",
-            repeat: true,
+          Center(
+            child: LottieBuilder.asset(
+              "assets/extras/lottie_welcome.json",
+              repeat: true,
+            ),
           ),
           const Spacer(),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: getHeight(20)),
             child: SizedBox(
-              width: getWidth(220),
+              width: getWidth(300),
               child: Text(
-                "We Need To Change Our Society",
+                "Problem in finding the best route for your vehicles?",
                 style: TextStyle(
                   color: pallete.primaryDark,
                   fontSize: getWidth(22),
@@ -68,7 +65,7 @@ class _WelcomeBodyState extends State<WelcomeBody> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: getHeight(20)),
             child: Text(
-              "Welcome to Split-it, with this app you can easily keep track of your expenses, split bills among your friends and stay in your budget!",
+              "Introducing RouteMate - The ultimate route optimization app for your business! Tired of spending hours manually finding the best route for your work? Let RouteMate do the work for you.",
               style: TextStyle(
                 color: pallete.primaryLight,
                 fontSize: getWidth(14),
@@ -113,8 +110,12 @@ class _WelcomeBodyState extends State<WelcomeBody> {
             ),
           if (signin)
             Center(
-              child: CircularProgressIndicator(
-                color: pallete.primary,
+              child: SizedBox(
+                width: getWidth(30),
+                height: getWidth(30),
+                child: CircularProgressIndicator(
+                  color: pallete.primary,
+                ),
               ),
             ),
           SizedBox(height: getHeight(60)),
