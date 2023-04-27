@@ -3,13 +3,14 @@ class Location {
   final double longitude;
   final String name;
   final int id;
-  int? capacity;
+  final double cap;
 
   Location(
       {required this.latitude,
       required this.longitude,
       required this.name,
-      required this.id});
+      required this.id,
+      required this.cap});
 
   factory Location.fromJson(Map<String, dynamic> json) {
     return Location(
@@ -17,6 +18,7 @@ class Location {
       longitude: json['longitude'],
       name: json['name'],
       id: json['id'],
+      cap: json['cap'],
     );
   }
 
@@ -26,7 +28,7 @@ class Location {
       'lon': longitude,
       'name': name,
       'id': id,
-      'cap': capacity ?? 0,
+      'cap': cap,
     };
   }
 }

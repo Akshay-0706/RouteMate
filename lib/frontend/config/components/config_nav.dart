@@ -17,7 +17,7 @@ class ConfigNav extends StatelessWidget {
     return Row(
       children: [
         InkWell(
-          onTap: () => Navigator.pop(context),
+          onTap: () => appRouter.pop(false),
           borderRadius: BorderRadius.circular(8),
           child: AnimatedRotation(
             turns: 1 / 8,

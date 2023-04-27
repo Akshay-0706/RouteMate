@@ -12,6 +12,7 @@ import 'package:routing/models/distance_matrix.dart';
 import 'package:routing/models/location.dart';
 import 'package:routing/size.dart';
 import 'package:routing/utils.dart';
+import 'dart:math' as math;
 
 class ConfigBody extends StatefulWidget {
   const ConfigBody({super.key, required this.locations});
@@ -23,8 +24,8 @@ class ConfigBody extends StatefulWidget {
 }
 
 class _ConfigBodyState extends State<ConfigBody> {
-  int vehicles = 0;
-  double vehicleCap = 0, totalCap = 0.0;
+  int vehicles = 0, variance = 0;
+  double vehicleCap = 0, sourceCap = 0.0, destCap = 0.0, totalCap = 0.0;
   bool isSource = true,
       isSourceSelected = false,
       isDestSelected = false,
@@ -51,10 +52,16 @@ class _ConfigBodyState extends State<ConfigBody> {
     validator();
   }
 
+  void onChangedVariance(int variance) {
+    this.variance = variance;
+    validator();
+  }
+
   void validator() {
     setState(() {
       readyToSubmit = vehicles != 0 &&
           vehicleCap != 0 &&
+          variance != 0 &&
           totalCap != 0 &&
           isSourceSelected &&
           isDestSelected &&
@@ -91,7 +98,6 @@ class _ConfigBodyState extends State<ConfigBody> {
     log.d('hello called');
     // final distanceMatrix = DistanceMatrix.fromJson(
     //     jsonDecode(DistanceMatrix.sampleResponse));
-    log.w(locations);
     Marker sourceMarker = locations[source];
     Marker destMarker = locations[dest];
 
@@ -99,10 +105,22 @@ class _ConfigBodyState extends State<ConfigBody> {
 
     locations.remove(sourceMarker);
     locations.remove(destMarker);
-    log.w(locations);
+
+    sourceCap = capacities[source];
+    destCap = capacities[dest];
+
+    if (source < dest) {
+      capacities.removeAt(source);
+      capacities.removeAt(dest - 1);
+    } else {
+      capacities.removeAt(source);
+      capacities.removeAt(dest);
+    }
 
     Constants.noOfTrucks = vehicles;
     Constants.truckCapacity = vehicleCap;
+    Constants.variance = variance;
+    Constants.key = math.Random().nextInt(100);
 
     for (int i = 0; i < locations.length; i++) {
       Marker element = locations.elementAt(i);
@@ -135,6 +153,7 @@ class _ConfigBodyState extends State<ConfigBody> {
           longitude: marker.position.longitude,
           name: res1.destinationAddresses![i],
           id: int.parse(marker.markerId.value),
+          cap: capacities[i] == 0 ? 30 : capacities[i],
         ),
       );
     }
@@ -162,15 +181,19 @@ class _ConfigBodyState extends State<ConfigBody> {
 
     await API.addSourceDest(
         Location(
-            latitude: sourceMarker.position.latitude,
-            longitude: sourceMarker.position.longitude,
-            name: "Source",
-            id: source),
+          latitude: sourceMarker.position.latitude,
+          longitude: sourceMarker.position.longitude,
+          name: "Source",
+          id: source,
+          cap: sourceCap == 0 ? 30 : sourceCap,
+        ),
         Location(
-            latitude: destMarker.position.latitude,
-            longitude: destMarker.position.longitude,
-            name: "Destination",
-            id: dest),
+          latitude: destMarker.position.latitude,
+          longitude: destMarker.position.longitude,
+          name: "Destination",
+          id: dest,
+          cap: destCap == 0 ? 30 : destCap,
+        ),
         res2);
   }
 
@@ -187,12 +210,13 @@ class _ConfigBodyState extends State<ConfigBody> {
                 readyToSubmit: readyToSubmit,
                 onSubmitted: () {
                   onSubmitted();
-                  appRouter.pop();
+                  appRouter.pop(true);
                 }),
             SizedBox(height: getHeight(40)),
             ConfigInfo(
               onChangedVehicles: onChangedVehicles,
               onChangedCapacity: onChangedCapacity,
+              onChangedVariance: onChangedVariance,
             ),
             SizedBox(height: getHeight(20)),
             Text(

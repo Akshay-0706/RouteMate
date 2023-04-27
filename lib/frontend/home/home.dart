@@ -30,10 +30,11 @@ class _HomeState extends State<Home> {
 
   late String mapStyleLight, mapStyleDark;
   final box = GetStorage();
+  bool showingOutput = false;
 
   static const CameraPosition mumbai = CameraPosition(
     target: LatLng(19.0760, 72.8777),
-    zoom: 17,
+    zoom: 15,
   );
 
   static StreamSubscription<DatabaseEvent>? subscription;
@@ -154,9 +155,14 @@ class _HomeState extends State<Home> {
       log.d(event.snapshot.value);
       if (event.snapshot.value == null) return;
       dBResult = event.snapshot.value as Map;
-      log.d(dBResult!['k']);
+      // log.d(dBResult!['k']);
+      int key = dBResult!["key"];
+      log.w("key generated: ${Constants.key}");
+      log.w("key got: $key");
       // update result routes
-      solveOutput();
+      polylines.clear();
+      resultRoutes = null;
+      if (key == Constants.key) solveOutput();
     });
   }
 
@@ -217,10 +223,6 @@ class _HomeState extends State<Home> {
     showDialog(context: context, builder: (context) => menuDialog);
   }
 
-  //https://maps.googleapis.com/maps/api/distancematrix/json?destinations=San%20Francisco%7CVictoria%20BC&language=fr-FR&mode=bicycling&origins=Vancouver%20BC%7CSeattle
-
-  //https://maps.googleapis.com/maps/api/directions/json?destination=Montreal&origin=Toronto&key=YOUR_API_KEY
-
   Directions? resultRoute;
 
   List<List<LatLng>>? resultRoutePoints;
@@ -237,7 +239,13 @@ class _HomeState extends State<Home> {
               : const Color.fromARGB(255, 0, 85, 154),
           onPressed: () async {
             // setInput();
-            appRouter.push(ConfigRoute(locations: markers.toList()));
+            appRouter
+                .push(ConfigRoute(locations: markers.toList()))
+                .then((value) {
+              setState(() {
+                showingOutput = value as bool;
+              });
+            });
           },
           child: Icon(
             Icons.play_arrow_rounded,
@@ -269,11 +277,19 @@ class _HomeState extends State<Home> {
                   ? MainAxisAlignment.end
                   : MainAxisAlignment.spaceBetween,
               children: [
-                if (markers.isNotEmpty)
+                if (markers.isNotEmpty || showingOutput)
                   GestureDetector(
                     onTap: () {
                       setState(() {
-                        markers.remove(markers.last);
+                        if (showingOutput) {
+                          Constants.key = -1;
+                          showingOutput = false;
+                          markers.clear();
+                          polylines.clear();
+                          resultRoutes = null;
+                        } else {
+                          markers.remove(markers.last);
+                        }
                       });
                     },
                     child: Container(
@@ -288,7 +304,9 @@ class _HomeState extends State<Home> {
                         padding: const EdgeInsets.all(10),
                         child: Center(
                           child: Icon(
-                            Icons.undo_rounded,
+                            showingOutput
+                                ? Icons.restart_alt_rounded
+                                : Icons.undo_rounded,
                             color: pallete.background,
                           ),
                         ),
@@ -324,7 +342,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void setSourceDistances() {}
   void solveOutput() {
     if (dBResult == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -335,25 +352,12 @@ class _HomeState extends State<Home> {
       return;
     }
 
-    int k = dBResult!['k'];
-
-    // getRoutes(dBResult!['routes'], k);
-
     getRoutes2(dBResult!['routes']);
 
     solve();
   }
 
   void solve() async {
-    // if (markers.isEmpty) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text('No Locations selected'),
-    //     ),
-    //   );
-    //   return;
-    // }
-
     for (List<LatLng> route in resultRoutePoints!) {
       log.d(route.toString());
       Directions? res = await MapApi.getDirectionsWithWayPoints(
@@ -376,16 +380,14 @@ class _HomeState extends State<Home> {
       resultRoutes!.add(res!);
     }
 
-    for (Directions element in resultRoutes!) {
+    for (var i = 0; i < resultRoutes!.length; i++) {
       polylines.add(
         Polyline(
           polylineId: PolylineId(getPolylineId()),
-          color: Constants
-              .routeColors[math.Random().nextInt(Constants.routeColors.length)],
-          // color:
-          //     Colors.primaries[math.Random().nextInt(Colors.primaries.length)],
-          width: 5,
-          points: element.polylinePoints
+          color: Constants.routeColors[i % Constants.routeColors.length],
+          width: 4,
+          points: resultRoutes![i]
+              .polylinePoints
               .map((e) => LatLng(e.latitude, e.longitude))
               .toList(),
         ),
@@ -401,63 +403,3 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 }
-
-/*
-
-    onPressed: () async {
-          print('hello called');
-          log.d('hello called');
-          // final distanceMatrix = DistanceMatrix.fromJson(
-          //     jsonDecode(DistanceMatrix.sampleResponse));
-
-          final DistanceMatrix? res = await MapApi.getDistances(const [
-            LatLng(19.0760, 72.8777), //src
-            LatLng(19.0780, 72.97),
-            LatLng(19.0780, 72.97)
-          ], const [
-            LatLng(19.0760, 72.88), //dest
-            LatLng(19.00, 72.87)
-          ]);
-
-          if (res == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Error fetching data'),
-              ),
-            );
-            return;
-          }
-
-          for (int i = 2; i < markers.length; i++) {
-            Marker element = markers.elementAt(i);
-            res.locations.add(
-              Location(
-                latitude: element.position.latitude,
-                longitude: element.position.longitude,
-                name: 'Location',
-                id: int.parse(element.mapsId.value),
-              ),
-            );
-          }
-
-          Marker dest = markers.elementAt(1);
-          Marker src = markers.elementAt(0);
-
-          res.destination = Location(
-              latitude: dest.position.latitude,
-              longitude: dest.position.longitude,
-              name: res.destinationAddresses![0],
-              id: int.parse(dest.mapsId.value));
-
-          res.source = Location(
-              latitude: src.position.latitude,
-              longitude: src.position.longitude,
-              name: res.originAddresses![0],
-              id: int.parse(src.mapsId.value));
-
-          log.d(res.rows!.length);
-
-          await API.addData(res);
-        },
-     
-*/

@@ -31,6 +31,7 @@ class Constants {
 
   static const String mapBaseUrl = "https://maps.googleapis.com/maps/api/";
 
+  static int key = -1;
   static int noOfTrucks = 20;
   static int variance = 1;
   static double truckCapacity = 20;
@@ -39,16 +40,8 @@ class Constants {
     const Color(0xffE5233B),
     const Color(0xffDCA63A),
     const Color(0xff4C9E38),
-    // const Color(0xffC51A2D),
-    // const Color(0xffFF3A20),
     const Color(0xff25BDE2),
-    // const Color(0xffFBC30A),
-    // const Color(0xffA21A42),
     const Color(0xffFD6824),
-    // const Color(0xffDD1367),
-    // const Color(0xffFD9D24),
-    // const Color(0xffC08B2F),
-    // const Color(0xff3F7E45),
     const Color(0xff56C02A),
   ];
 

@@ -33,6 +33,7 @@ class DistanceMatrix {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['cap'] = Constants.truckCapacity;
     data['k'] = Constants.noOfTrucks;
+    data['key'] = Constants.key;
     data['variance'] = Constants.variance;
 
     Map<String, dynamic> distances = <String, dynamic>{};
@@ -81,7 +82,7 @@ class DistanceMatrix {
         'lat': this.locations[i].latitude,
         'lon': this.locations[i].longitude,
         'name': this.locations[i].name,
-        'cap': this.locations[i].capacity ?? 0
+        'cap': this.locations[i].cap ?? 0
       };
     }
 

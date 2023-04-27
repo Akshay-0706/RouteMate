@@ -90,7 +90,7 @@ class _MenuDialogState extends State<MenuDialog> {
                   CustomDropdownButton2(
                     hint: theme,
                     value: theme,
-                    // textColor: Colors.white,
+                    textColor: Colors.white,
                     hintAlignment: Alignment.center,
                     valueAlignment: Alignment.center,
                     buttonWidth: getHeight(60),
